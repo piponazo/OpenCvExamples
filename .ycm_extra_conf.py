@@ -17,8 +17,6 @@ flags = [
 'c++',
 '-I',
 '.',
-'-I',
-'/home/piponazo/programming/OpenCVExamples',
 '-isystem',
 '/usr/include',
 '-isystem',
