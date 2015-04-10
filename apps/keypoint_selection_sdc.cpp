@@ -100,6 +100,7 @@ static void supDiskCovering(const vector<KeyPoint> &kps, vector<KeyPoint> &outKp
             r_i = prev_r_i + halfDist;
             halfDist = (r_i - prev_r_i) / 2.f;
         }
+//        float cFloat = e_r * r_i / M_SQRT2;
         unsigned int c = std::floor(e_r * r_i / M_SQRT2 + 0.5f);
 
         result.clear();
@@ -143,16 +144,20 @@ static void supDiskCovering(const vector<KeyPoint> &kps, vector<KeyPoint> &outKp
                 }
 
                 // Cover all the cells with distance smaller than r to the current cell center
-                for(int i = 0; i < imgCells.rows; i++) {
-                    for(int j = 0; j < imgCells.cols; j++) {
-                        int cell_j_y = i*c + c/2;
-                        int cell_j_x = j*c + c/2;
-                        float dist = std::hypot(cell_i_x - cell_j_x, cell_i_y - cell_j_y);
-                        if (dist < r_i) {
-                            imgCells.at<uchar>(i, j) = 255;
-                        }
-                    }
-                }
+//                for(int i = 0; i < imgCells.rows; i++) {
+//                    for(int j = 0; j < imgCells.cols; j++) {
+//                        int cell_j_y = i*c + c/2;
+//                        int cell_j_x = j*c + c/2;
+//                        float dist = std::hypot(cell_i_x - cell_j_x, cell_i_y - cell_j_y);
+//                        if (dist < r_i) {
+//                            imgCells.at<uchar>(i, j) = 255;
+//                        }
+//                    }
+//                }
+
+                // Cover all the cells using cv::circle
+                int radiusCircle = static_cast<int>(r_i / c); 
+                cv::circle(imgCells, Point(cellX, cellY), radiusCircle, Scalar(255), -1);
 
                 cv::circle(imgShow, p_i.pt, 1, Scalar(255,0,255), 2, -1);
                 cv::circle(imgShow, p_i.pt, r_i, Scalar(0,0,255), 1, 1);
