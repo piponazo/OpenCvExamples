@@ -1,8 +1,12 @@
+#define _USE_MATH_DEFINES
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/features2d/features2d.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <iostream>
+
 #include <cmath>
 
 using namespace std;
@@ -52,8 +56,8 @@ int main(int argc, char **argv)
 
 static void detectFastKeypoints(Mat &img, vector<KeyPoint> &kps)
 {
-    cv::FastFeatureDetector fast;
-    fast.detect(img, kps);
+    auto fast = cv::FastFeatureDetector::create();
+    fast->detect(img, kps);
     cout << "Keypoints detected: " << kps.size() << endl;
 }
 

@@ -79,8 +79,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 else ()
 
-    message( FATAL_ERROR "Not supported compiler: ${CMAKE_CXX_COMPILER_ID}. " )
-
 endif()
 
 # Add user supplied extra options (optimization, etc...)
