@@ -13,3 +13,6 @@ add_executable(compare_circle_function          compare_circle_function.cpp)
 target_link_libraries(compare_circle_function PRIVATE opencv_imgproc)
 
 add_executable(imagelist_creator                imagelist_creator.cpp)
+
+add_executable(calibration                      calibration.cpp)
+target_link_libraries(calibration PRIVATE opencv_calib3d)
