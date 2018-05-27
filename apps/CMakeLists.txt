@@ -11,3 +11,5 @@ target_link_libraries(keypoint_selection_sdc PRIVATE opencv_features2d opencv_im
 
 add_executable(compare_circle_function          compare_circle_function.cpp)
 target_link_libraries(compare_circle_function PRIVATE opencv_imgproc)
+
+add_executable(imagelist_creator                imagelist_creator.cpp)
