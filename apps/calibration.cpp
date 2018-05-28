@@ -8,6 +8,7 @@
 
 #include <cctype>
 #include <stdio.h>
+#include <iostream>
 #include <string.h>
 #include <time.h>
 
@@ -38,21 +39,12 @@ const char * usage =
 "</opencv_storage>\n";
 
 
-
-
-const char* liveCaptureHelp =
-    "When the live video from camera is used as input, the following hot-keys may be used:\n"
-        "  <ESC>, 'q' - quit the program\n"
-        "  'g' - start capturing images\n"
-        "  'u' - switch undistortion on/off\n";
-
 static void help()
 {
     printf( "This is a camera calibration sample.\n"
         "Usage: calibration\n"
         "     -w=<board_width>         # the number of inner corners per one of board dimension\n"
         "     -h=<board_height>        # the number of inner corners per another board dimension\n"
-        "     [-pt=<pattern>]          # the type of pattern: chessboard or circles' grid\n"
         "     [-n=<number_of_frames>]  # the number of frames to use for calibration\n"
         "                              # (if not specified, it will be set to the number\n"
         "                              #  of board views actually available)\n"
@@ -76,11 +68,9 @@ static void help()
         "                              # if input_data not specified, a live view from the camera is used\n"
         "\n" );
     printf("\n%s",usage);
-    printf( "\n%s", liveCaptureHelp );
 }
 
 enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };
-enum Pattern { CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };
 
 static double computeReprojectionErrors(
         const vector<vector<Point3f> >& objectPoints,
@@ -108,34 +98,17 @@ static double computeReprojectionErrors(
     return std::sqrt(totalErr/totalPoints);
 }
 
-static void calcChessboardCorners(Size boardSize, float squareSize, vector<Point3f>& corners, Pattern patternType = CHESSBOARD)
+static void calcChessboardCorners(Size boardSize, float squareSize, vector<Point3f>& corners)
 {
     corners.resize(0);
-
-    switch(patternType)
-    {
-      case CHESSBOARD:
-      case CIRCLES_GRID:
-        for( int i = 0; i < boardSize.height; i++ )
-            for( int j = 0; j < boardSize.width; j++ )
-                corners.push_back(Point3f(float(j*squareSize),
-                                          float(i*squareSize), 0));
-        break;
-
-      case ASYMMETRIC_CIRCLES_GRID:
-        for( int i = 0; i < boardSize.height; i++ )
-            for( int j = 0; j < boardSize.width; j++ )
-                corners.push_back(Point3f(float((2*j + i % 2)*squareSize),
-                                          float(i*squareSize), 0));
-        break;
-
-      default:
-        CV_Error(Error::StsBadArg, "Unknown pattern type\n");
-    }
+    for( int i = 0; i < boardSize.height; i++ )
+        for( int j = 0; j < boardSize.width; j++ )
+            corners.push_back(Point3f(float(j*squareSize),
+                                      float(i*squareSize), 0));
 }
 
 static bool runCalibration( vector<vector<Point2f> > imagePoints,
-                    Size imageSize, Size boardSize, Pattern patternType,
+                    Size imageSize, Size boardSize,
                     float squareSize, float aspectRatio,
                     int flags, Mat& cameraMatrix, Mat& distCoeffs,
                     vector<Mat>& rvecs, vector<Mat>& tvecs,
@@ -149,7 +122,7 @@ static bool runCalibration( vector<vector<Point2f> > imagePoints,
     distCoeffs = Mat::zeros(8, 1, CV_64F);
 
     vector<vector<Point3f> > objectPoints(1);
-    calcChessboardCorners(boardSize, squareSize, objectPoints[0], patternType);
+    calcChessboardCorners(boardSize, squareSize, objectPoints[0]);
 
     objectPoints.resize(imagePoints.size(),objectPoints[0]);
 
@@ -264,9 +237,10 @@ static bool readStringList( const string& filename, vector<string>& l )
 }
 
 
+// Run calibration and save camera parameters
 static bool runAndSave(const string& outputFilename,
                 const vector<vector<Point2f> >& imagePoints,
-                Size imageSize, Size boardSize, Pattern patternType, float squareSize,
+                Size imageSize, Size boardSize, float squareSize,
                 float aspectRatio, int flags, Mat& cameraMatrix,
                 Mat& distCoeffs, bool writeExtrinsics, bool writePoints )
 {
@@ -274,7 +248,7 @@ static bool runAndSave(const string& outputFilename,
     vector<float> reprojErrs;
     double totalAvgErr = 0;
 
-    bool ok = runCalibration(imagePoints, imageSize, boardSize, patternType, squareSize,
+    bool ok = runCalibration(imagePoints, imageSize, boardSize, squareSize,
                    aspectRatio, flags, cameraMatrix, distCoeffs,
                    rvecs, tvecs, reprojErrs, totalAvgErr);
     printf("%s. avg reprojection error = %.2f\n",
@@ -306,68 +280,70 @@ int main( int argc, char** argv )
     bool writeExtrinsics, writePoints;
     bool undistortImage = false;
     int flags = 0;
-    VideoCapture capture;
     bool flipVertical;
-    bool showUndistorted;
-    bool videofile;
     int delay;
-    clock_t prevTimestamp = 0;
     int mode = DETECTION;
-    int cameraId = 0;
     vector<vector<Point2f> > imagePoints;
-    vector<string> imageList;
-    Pattern pattern = CHESSBOARD;
 
     cv::CommandLineParser parser(argc, argv,
-        "{help ||}{w||}{h||}{pt|chessboard|}{n|10|}{d|1000|}{s|1|}{o|out_camera_data.yml|}"
-        "{op||}{oe||}{zt||}{a|1|}{p||}{v||}{V||}{su||}"
-        "{@input_data|0|}");
+        "{help ||}"
+        "{w||}"
+        "{h||}"
+        "{pt|chessboard|}"
+        "{n|10|}"
+        "{d|1000|}"
+        "{s|1|}"
+        "{o|out_camera_data.yml|}"
+        "{op||}"
+        "{oe||}"
+        "{zt||}"
+        "{a|1|}"
+        "{p||}"
+        "{v||}"
+        "{V||}"
+        "{su||}"
+        "{@input_data|0|}"
+    );
     if (parser.has("help"))
     {
         help();
         return 0;
     }
+
     boardSize.width = parser.get<int>( "w" );
     boardSize.height = parser.get<int>( "h" );
-    if ( parser.has("pt") )
-    {
-        string val = parser.get<string>("pt");
-        if( val == "circles" )
-            pattern = CIRCLES_GRID;
-        else if( val == "acircles" )
-            pattern = ASYMMETRIC_CIRCLES_GRID;
-        else if( val == "chessboard" )
-            pattern = CHESSBOARD;
-        else
-            return fprintf( stderr, "Invalid pattern type: must be chessboard or circles\n" ), -1;
-    }
+
     squareSize = parser.get<float>("s");
     nframes = parser.get<int>("n");
     aspectRatio = parser.get<float>("a");
     delay = parser.get<int>("d");
     writePoints = parser.has("op");
     writeExtrinsics = parser.has("oe");
+
     if (parser.has("a"))
         flags |= CALIB_FIX_ASPECT_RATIO;
+
     if ( parser.has("zt") )
         flags |= CALIB_ZERO_TANGENT_DIST;
+
     if ( parser.has("p") )
         flags |= CALIB_FIX_PRINCIPAL_POINT;
+
     flipVertical = parser.has("v");
-    videofile = parser.has("V");
+
     if ( parser.has("o") )
         outputFilename = parser.get<string>("o");
-    showUndistorted = parser.has("su");
-    if ( isdigit(parser.get<string>("@input_data")[0]) )
-        cameraId = parser.get<int>("@input_data");
-    else
-        inputFilename = parser.get<string>("@input_data");
+
+    const bool showUndistorted = parser.has("su");
+    inputFilename = parser.get<string>("@input_data");
+
     if (!parser.check())
     {
         help();
         parser.printErrors();
         return -1;
     }
+
     if ( squareSize <= 0 )
         return fprintf( stderr, "Invalid board square width\n" ), -1;
     if ( nframes <= 3 )
@@ -381,46 +357,33 @@ int main( int argc, char** argv )
     if ( boardSize.height <= 0 )
         return fprintf( stderr, "Invalid board height\n" ), -1;
 
+    vector<string> imageList;
     if( !inputFilename.empty() )
     {
-        if( !videofile && readStringList(inputFilename, imageList) )
+        if( readStringList(inputFilename, imageList) )
             mode = CAPTURING;
-        else
-            capture.open(inputFilename);
     }
-    else
-        capture.open(cameraId);
 
-    if( !capture.isOpened() && imageList.empty() )
-        return fprintf( stderr, "Could not initialize video (%d) capture\n",cameraId ), -2;
+    if( imageList.empty() )
+        return fprintf( stderr, "imageList is empty\n"), -2;
 
     if( !imageList.empty() )
         nframes = (int)imageList.size();
 
-    if( capture.isOpened() )
-        printf( "%s", liveCaptureHelp );
-
     namedWindow( "Image View", 1 );
 
+    Mat view, viewGray;
     for(i = 0;;i++)
     {
-        Mat view, viewGray;
         bool blink = false;
 
-        if( capture.isOpened() )
-        {
-            Mat view0;
-            capture >> view0;
-            view0.copyTo(view);
-        }
-        else if( i < (int)imageList.size() )
-            view = imread(imageList[i], 1);
+        view = imread(imageList[i], 1);
 
         if(view.empty())
         {
             if( imagePoints.size() > 0 )
                 runAndSave(outputFilename, imagePoints, imageSize,
-                           boardSize, pattern, squareSize, aspectRatio,
+                           boardSize, squareSize, aspectRatio,
                            flags, cameraMatrix, distCoeffs,
                            writeExtrinsics, writePoints);
             break;
@@ -434,33 +397,16 @@ int main( int argc, char** argv )
         vector<Point2f> pointbuf;
         cvtColor(view, viewGray, COLOR_BGR2GRAY);
 
-        bool found;
-        switch( pattern )
-        {
-            case CHESSBOARD:
-                found = findChessboardCorners( view, boardSize, pointbuf,
+        bool found = findChessboardCorners( view, boardSize, pointbuf,
                     CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_FAST_CHECK | CALIB_CB_NORMALIZE_IMAGE);
-                break;
-            case CIRCLES_GRID:
-                found = findCirclesGrid( view, boardSize, pointbuf );
-                break;
-            case ASYMMETRIC_CIRCLES_GRID:
-                found = findCirclesGrid( view, boardSize, pointbuf, CALIB_CB_ASYMMETRIC_GRID );
-                break;
-            default:
-                return fprintf( stderr, "Unknown pattern type\n" ), -1;
-        }
 
        // improve the found corners' coordinate accuracy
-        if( pattern == CHESSBOARD && found) cornerSubPix( viewGray, pointbuf, Size(11,11),
+        if( found) cornerSubPix( viewGray, pointbuf, Size(11,11),
             Size(-1,-1), TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.1 ));
 
-        if( mode == CAPTURING && found &&
-           (!capture.isOpened() || clock() - prevTimestamp > delay*1e-3*CLOCKS_PER_SEC) )
+        if( mode == CAPTURING && found)
         {
             imagePoints.push_back(pointbuf);
-            prevTimestamp = clock();
-            blink = capture.isOpened();
         }
 
         if(found)
@@ -493,7 +439,7 @@ int main( int argc, char** argv )
         }
 
         imshow("Image View", view);
-        char key = (char)waitKey(capture.isOpened() ? 50 : 500);
+        char key = (char)waitKey(200);
 
         if( key == 27 )
             break;
@@ -501,27 +447,20 @@ int main( int argc, char** argv )
         if( key == 'u' && mode == CALIBRATED )
             undistortImage = !undistortImage;
 
-        if( capture.isOpened() && key == 'g' )
-        {
-            mode = CAPTURING;
-            imagePoints.clear();
-        }
-
         if( mode == CAPTURING && imagePoints.size() >= (unsigned)nframes )
         {
             if( runAndSave(outputFilename, imagePoints, imageSize,
-                       boardSize, pattern, squareSize, aspectRatio,
+                       boardSize, squareSize, aspectRatio,
                        flags, cameraMatrix, distCoeffs,
                        writeExtrinsics, writePoints))
                 mode = CALIBRATED;
             else
                 mode = DETECTION;
-            if( !capture.isOpened() )
-                break;
+            break;
         }
     }
 
-    if( !capture.isOpened() && showUndistorted )
+    if( showUndistorted )
     {
         Mat view, rview, map1, map2;
         initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(),

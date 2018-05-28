@@ -10,6 +10,8 @@ class OpenCvExamples(ConanFile):
         self.options['OpenCV'].opencl = True
         if os_info.is_windows:
             self.options['OpenCV'].gui = "WIN"
+        if os_info.is_linux:
+            self.options['OpenCV'].gui = "GTK2"
 
     def requirements(self):
         self.requires('OpenCV/3.4.1@piponazo/testing')
