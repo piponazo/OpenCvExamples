@@ -1,8 +1,9 @@
-CMakeCache.txt
-CMakeFiles
-Makefile
-cmake_install.cmake
-install_manifest.txt
+# Build folders
+build*
 
-build*/*
+# Vim temporary files
 *.swp
+*~
+
+# QtCreator project file
+CMakeLists.txt.user
