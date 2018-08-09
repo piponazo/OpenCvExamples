@@ -16,3 +16,6 @@ add_executable(imagelist_creator                imagelist_creator.cpp)
 
 add_executable(calibration                      calibration.cpp)
 target_link_libraries(calibration PRIVATE opencv_calib3d)
+
+add_executable(visual_odometry                  visual_odometry.cpp)
+target_link_libraries(calibration PRIVATE opencv_calib3d opencv_highgui)
