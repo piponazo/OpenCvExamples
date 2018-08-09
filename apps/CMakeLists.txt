@@ -7,7 +7,11 @@ add_executable(trackbar_control_panel           trackbar_control_panel.cpp)
 add_executable(delaunay_gps delaunay_gps.cpp    linearscale.h linearscale.cpp)
 
 add_executable(keypoint_selection_sdc           keypoint_selection_sdc.cpp)
-target_link_libraries(keypoint_selection_sdc PRIVATE opencv_features2d opencv_imgproc)
+target_link_libraries(keypoint_selection_sdc
+    PRIVATE
+        opencv_features2d
+        opencv_imgproc
+)
 
 add_executable(compare_circle_function          compare_circle_function.cpp)
 target_link_libraries(compare_circle_function PRIVATE opencv_imgproc)
@@ -18,4 +22,10 @@ add_executable(calibration                      calibration.cpp)
 target_link_libraries(calibration PRIVATE opencv_calib3d)
 
 add_executable(visual_odometry                  visual_odometry.cpp)
-target_link_libraries(calibration PRIVATE opencv_calib3d opencv_highgui)
+target_link_libraries(visual_odometry
+    PRIVATE
+        opencv_features2d
+        opencv_calib3d
+        opencv_highgui
+        opencv_video
+)
