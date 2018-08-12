@@ -28,6 +28,7 @@ int main(int argc, char** argv)
 {
     if (argc != 3) {
         cerr << "Usage: " << argv[0] << " datasetPath sequence" << endl;
+        return EXIT_FAILURE;
     }
 
     fs::path datasetPath(argv[1]);
