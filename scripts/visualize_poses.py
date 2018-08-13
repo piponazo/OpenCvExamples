@@ -35,6 +35,7 @@ def main():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-g', '--ground', help='Location of ground truth poses file', required=True)
     parser.add_argument('-c', '--computed', help='Location of computed poses file', required=True)
+    parser.add_argument('-s', '--steps', help='Steps to show arrows', default=5)
 
     args = parser.parse_args()
 
@@ -52,10 +53,16 @@ def main():
     ax.plot(gX, gZ, label='GT')         # GT data
     ax.plot(gX[0], gZ[0], 'ro')         # GT first point in red
     ax.plot(gX[-1], gZ[-1], 'go')       # GT last point in green
+    for i in range(0, len(gX)-1, int(args.steps)):
+        ax.arrow(gX[i], gZ[i], gX[i+1]-gX[i], gZ[i+1]-gZ[i], shape='full', lw=0, length_includes_head=False,
+                 head_width=0.5)
 
     ax.plot(cX, cZ, label='Computed')   # computed data
     ax.plot(cX[0], cZ[0], 'yo')         # computed first point in red
     ax.plot(cX[-1], cZ[-1], 'bo')       # computed last point in green
+    for i in range(0, len(cX)-1, int(args.steps)):
+        ax.arrow(cX[i], cZ[i], cX[i+1]-cX[i], cZ[i+1]-cZ[i], shape='full', lw=0, length_includes_head=False,
+                 head_width=0.5, color='r')
 
     ax.set(xlabel='x coordinate', ylabel='z coordinate',
            title='KITTY Odometry comparison (GT and computed poses)')
