@@ -33,7 +33,7 @@ int main()
 	cv::Subdiv2D subdiv(rect);
 	cv::Mat img(rect.size(), CV_8UC3, cv::Scalar::all(0));
 	
-	cv::namedWindow("img", cv::WINDOW_NORMAL | CV_WINDOW_KEEPRATIO);
+    cv::namedWindow("img", cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
 	cv::resizeWindow("img", 500, 500);
 	cv::imshow("img", img);
 
@@ -83,7 +83,7 @@ static void locate_point(cv::Mat& img,cv::Subdiv2D& subdiv, cv::Point2f fp)
         do {
 			cv::Point2f org, dst;
             if( subdiv.edgeOrg(edge, &org) > 0 && subdiv.edgeDst(edge, &dst) > 0 ) {
-                line( img, org, dst, active_facet_color, 3, CV_AA, 0 );
+                line( img, org, dst, active_facet_color, 3, cv::LINE_AA, 0 );
 			}
 
             edge = subdiv.getEdge(edge, cv::Subdiv2D::NEXT_AROUND_LEFT);
@@ -116,7 +116,7 @@ static void locateNearestPoints(cv::Mat& img, cv::Subdiv2D& subdiv, const cv::Po
 
 static void draw_subdiv_point(cv::Mat& img, cv::Point2f fp, cv::Scalar color )
 {
-	cv::circle( img, fp, 3, color, CV_FILLED, 8, 0 );
+    cv::circle( img, fp, 3, color, cv::FILLED, 8, 0 );
 }
 
 static void draw_subdiv( cv::Mat& img, cv::Subdiv2D& subdiv)
@@ -144,7 +144,7 @@ static void draw_subdiv( cv::Mat& img, cv::Subdiv2D& subdiv)
 		cv::Vec4f e = edgeList[i];
 		cv::Point pt0 = cv::Point(cvRound(e[0]), cvRound(e[1]));
 		cv::Point pt1 = cv::Point(cvRound(e[2]), cvRound(e[3]));
-		cv::line(img, pt0, pt1, delaunay_color, 1, CV_AA, 0);
+        cv::line(img, pt0, pt1, delaunay_color, 1, cv::LINE_AA, 0);
     }
 }
 

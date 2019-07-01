@@ -7,12 +7,13 @@
 #include <opencv2/video/tracking.hpp>
 
 #include <filesystem>
+#include <iterator>
 #include <fstream>
 #include <iostream>
 #include <string>
 
 using namespace std;
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 const int MINIMUM_TRACKED_FEATURES = 2000;
 
@@ -64,10 +65,6 @@ int main(int argc, char** argv)
     cv::Mat E, R, t;
     E = cv::findEssentialMat(pointsCurr, pointsPrev, focal, pp, cv::RANSAC, 0.999, 1.0);
     cv::recoverPose(E, pointsCurr, pointsPrev, R, t, focal, pp);
-
-    const double scale = getAbsoluteScale(poses, 1);
-//    cout << "Scale: " << scale
-//         << "t: " << t.at<double>(0) << " , " << t.at<double>(1) << " , " << t.at<double>(2) << endl;
 
     cv::Mat R_f = R.clone();
     cv::Mat t_f = t.clone();

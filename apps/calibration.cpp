@@ -275,7 +275,7 @@ int main( int argc, char** argv )
     bool writeExtrinsics, writePoints;
     int flags = 0;
     int delay;
-    int mode = DETECTION;
+//    int mode = DETECTION;
     vector<vector<Point2f> > allFeatures;
 
     cv::CommandLineParser parser(argc, argv,
@@ -346,7 +346,7 @@ int main( int argc, char** argv )
     vector<string> imageList;
     if(!readStringList(inputFilename, imageList) )
         return fprintf( stderr, "Could not read images\n" ), -1;
-    mode = CAPTURING;
+//    mode = CAPTURING;
 
     if( imageList.empty() )
         return fprintf( stderr, "imageList is empty\n"), -2;
@@ -399,7 +399,7 @@ int main( int argc, char** argv )
         return printf( "Calibration failed\n" ), -1;
     }
 
-    mode = CALIBRATED;
+//    mode = CALIBRATED;
 
     if( showUndistorted )
     {

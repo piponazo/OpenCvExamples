@@ -10,7 +10,7 @@ int main()
     cv::Mat img(400, 400, CV_8UC1, cv::Scalar::all(255));
 
     // Common code
-    cv::namedWindow("img", cv::WINDOW_NORMAL | CV_WINDOW_KEEPRATIO);
+    cv::namedWindow("img", cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
     cv::moveWindow("img", 0, 0);
 
     // GTK code

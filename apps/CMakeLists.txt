@@ -28,4 +28,5 @@ target_link_libraries(visual_odometry
         opencv_calib3d
         opencv_highgui
         opencv_video
+        stdc++fs
 )

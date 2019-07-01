@@ -5,5 +5,4 @@ if (EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
     conan_basic_setup()
 endif()
 
-find_package(OpenCV 3.4.1 REQUIRED core highgui imgproc features2d video)
-#find_package(OpenCV REQUIRED)
+find_package(OpenCV 4.1 REQUIRED core highgui imgproc features2d video)

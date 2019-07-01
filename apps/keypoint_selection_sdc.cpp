@@ -22,9 +22,8 @@ static size_t desiredKeypoints = 50;
 int main(int argc, char **argv)
 {
     namedWindow("img");
-//    namedWindow("img", cv::WINDOW_NORMAL | CV_WINDOW_KEEPRATIO);
     moveWindow("img", 0, 0);
-    namedWindow("cells", cv::WINDOW_NORMAL | CV_WINDOW_KEEPRATIO);
+    namedWindow("cells", cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
     moveWindow("cells", 0, 600);
     resizeWindow("cells", 500, 500);
 
