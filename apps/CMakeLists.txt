@@ -30,3 +30,5 @@ target_link_libraries(visual_odometry
         opencv_video
         stdc++fs
 )
+
+add_executable(read_multipage_tiff              read_multipage_tiff.cpp)
